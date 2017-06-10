@@ -1,0 +1,299 @@
+#!/bin/bash
+
+# "chmod +x ./bkmScript" komutu ile script dosyasini executable yapmak gerekir.
+# ls -al komutu ile baktigimizda asagidaki x'leri gormemiz lazim.
+# -rwxr-xr-x    1 tan  staff   6569 Jan 11 14:35 bkmScript.
+
+# echo "This script is called $0."
+# echo "The number of command line arguments is $#"
+# echo "First argument: $1"
+# echo "Second argument: $2"
+# echo "Third argument: $3"
+
+if [ $# != 3 ]
+then
+    echo "**************************************"
+    echo "Dikkat! Bu script 3 parametre ile calisir!"
+    echo "Kullanim: ./bkmScript environment app_name bundle_id_for_the_app"
+    echo "environment degerleri: dev, test, prod."
+    echo "app_name degerleri   : T2, BKM2, BKM3, BKM5."
+    echo "bundle_id_for_the_App degerini sizin belirlemis olmaniz gerekiyor."
+    echo "**************************************"
+    echo "Örnek-1:"
+    echo "./bkmScript dev T2 tr.biz.blockchain.t2-dev"
+    echo "./bkmScript dev BKM2 tr.biz.blockchain.bkm2-dev"
+    echo "./bkmScript dev BKM3 tr.biz.blockchain.bkm3-dev"
+    echo "./bkmScript dev BKM5 tr.biz.blockchain.bkm5-dev"
+    echo "**************************************"
+    echo "Örnek-2:"
+    echo "./bkmScript test T2 tr.biz.blockchain.t2-test"
+    echo "./bkmScript test BKM2 tr.biz.blockchain.bkm2-test"
+    echo "./bkmScript test BKM3 tr.biz.blockchain.bkm3-test"
+    echo "./bkmScript test BKM5 tr.biz.blockchain.bkm5-test"
+    echo "**************************************"
+    echo "Örnek-3:"
+    echo "./bkmScript prod BKM2 bundle_id_for_BKM2"
+    exit -1
+elif [ $1 != "dev" ] && [ $1 != "test" ] && [ $1 != "prod" ]
+then
+    echo "Birinci parametre (environment) sadece \"dev, test, prod\" degerlerinden birisi olabilir!"
+    exit -1
+elif [ $2 != "T2" ] && [ $2 != "BKM2" ] && [ $2 != "BKM3" ] && [ $2 != "BKM5" ]
+then
+    echo "İkinci parametre (app_name) sadece \"T2, BKM2, BKM3, BKM5\" degerlerinden birisi olabilir!"
+    exit -1
+fi
+
+
+ans=""  # App Name Suffix
+if [ $1 = "dev" ]
+then
+    ans="_${2}dev"
+elif [ $1 = "test" ]
+then
+    ans="_${2}test"
+elif [ $1 = "prod" ]
+then
+    ans="_${2}"
+fi
+
+
+
+# ----------- BEGIN: Uygulama Ismini degistir -------------------------------------------------------
+# Turuncu: BBN_T2dev, Mavi: BBN_BKM2dev, Yesil: BBN_BKM3dev, Siyah: BBN_BKM5dev
+
+sed -i backup_silinebilir -e "s/\"name\": \"BBN.*\",/\"name\": \"BBN${ans}\",/g" ./package.json
+sed -i backup_silinebilir -e "s/\'BBN.*\'/\'BBN${ans}\'/g" ./index.ios.js
+sed -i backup_silinebilir -e "s/\'BBN.*\'/\'BBN${ans}\'/g" ./index.android.js
+# ----------- END: Uygulama Ismini degistir ---------------------------------------------------------
+
+
+# ----------- BEGIN: React Komutlarini Calistir -----------------------------------------------------
+echo
+echo "ios klasoru siliniyor..."
+rm -rf ./ios
+# echo "android klasoru siliniyor..."
+# rm -rf ./android
+echo
+echo "--------------------------------------------"
+echo
+echo "Simdi react-native upgrade komutu calisiyor. Lütfen bekleyin..."
+echo "..."
+echo
+react-native upgrade
+echo "--------------------------------------------"
+echo
+echo "Simdi react-native link komutu calisiyor. Lütfen bekleyin..."
+echo "..."
+echo
+react-native link
+# ----------- END: React Komutlarini Calistir -------------------------------------------------------
+
+
+
+# BBN.entitlements sil ve backup'dan tekrar kopyala:
+# rm -rf ./ios/BBN${ans}/BBN${ans}.entitlements # Zaten ios klasoru silinmisti.
+cp -r ./_configFiles/MasterBBN.entitlements ./ios/BBN${ans}/BBN${ans}.entitlements
+
+
+# Info.plist sil ve backup'dan tekrar kopyala:
+# rm -rf ./ios/BBN${ans}/Info.plist # Zaten ios klasoru silinmisti.
+cp -r ./_configFiles/MasterInfo.plist ./ios/BBN${ans}/Info.plist
+
+# Info.plist uzerinde uygulamarin birbirlerini gormesi icin konfigurasyonun ilk kismini yap:
+sed -i backup_silinebilir -e "s/tr.biz.blockchain.t2-dev/${3}/g" ./ios/BBN${ans}/Info.plist
+
+
+if [ $1 = "dev" ]
+then
+    # var ortam = '' ===> var ortam = '-dev'
+    sed -i backup_silinebilir -e "s/var ortam \= \'\'/var ortam \= \'-dev\'/g" ./js/themes/base-style.js
+
+    # var ortam = '-test' ===> var ortam = '-dev'
+    sed -i backup_silinebilir -e "s/var ortam \= \'-test\'/var ortam \= \'-dev\'/g" ./js/themes/base-style.js
+
+    # NOT: Dev icin Info.plist uzerinde CFBundleDisplayName degisikligine gerek yok. Zaten default T2dev seklinde.
+    # NOT: Dev icin Info.plist uzerinde CFBundleURLSchemes ve LSApplicationQueriesSchemes degisikligine gerek yok. Zaten default -dev seklinde.
+
+elif [ $1 = "test" ]
+then
+    # var ortam = '' ===> var ortam = '-test'
+    sed -i backup_silinebilir -e "s/var ortam \= \'\'/var ortam \= \'-test\'/g" ./js/themes/base-style.js
+
+    # var ortam = '-dev' ===> var ortam = '-test'
+    sed -i backup_silinebilir -e "s/var ortam \= \'-dev\'/var ortam \= \'-test\'/g" ./js/themes/base-style.js
+
+    # Info.plist uzerinde CFBundleDisplayName konfigurasyonu ayarla:
+    sed -i backup_silinebilir -e "s/\<string\>T2dev\<\/string\>/\<string\>T2test\<\/string\>/g" ./ios/BBN${ans}/Info.plist
+
+    # Info.plist uzerinde CFBundleURLSchemes ve LSApplicationQueriesSchemes konfigurasyonu ayarla:
+    sed -i backup_silinebilir -e "s/bbn-T2-dev/bbn-T2-test/g" ./ios/BBN${ans}/Info.plist
+    sed -i backup_silinebilir -e "s/bbn-BKM2-dev/bbn-BKM2-test/g" ./ios/BBN${ans}/Info.plist
+    sed -i backup_silinebilir -e "s/bbn-BKM3-dev/bbn-BKM3-test/g" ./ios/BBN${ans}/Info.plist
+    sed -i backup_silinebilir -e "s/bbn-BKM5-dev/bbn-BKM5-test/g" ./ios/BBN${ans}/Info.plist
+
+elif [ $1 = "prod" ]
+then
+    # var ortam = '-dev' ===> var ortam = ''
+    sed -i backup_silinebilir -e "s/var ortam \= \'-dev\'/var ortam \= \'\'/g" ./js/themes/base-style.js
+
+    # var ortam = '-test' ===> var ortam = ''
+    sed -i backup_silinebilir -e "s/var ortam \= \'-test\'/var ortam \= \'\'/g" ./js/themes/base-style.js
+
+    # Info.plist uzerinde CFBundleDisplayName konfigurasyonu ayarla:
+    sed -i backup_silinebilir -e "s/\<string\>T2dev\<\/string\>/\<string\>T2\<\/string\>/g" ./ios/BBN${ans}/Info.plist
+
+    # Info.plist uzerinde CFBundleURLSchemes ve LSApplicationQueriesSchemes konfigurasyonu ayarla:
+    sed -i backup_silinebilir -e "s/bbn-T2-dev/bbn-T2/g" ./ios/BBN${ans}/Info.plist
+    sed -i backup_silinebilir -e "s/bbn-BKM2-dev/bbn-BKM2/g" ./ios/BBN${ans}/Info.plist
+    sed -i backup_silinebilir -e "s/bbn-BKM3-dev/bbn-BKM3/g" ./ios/BBN${ans}/Info.plist
+    sed -i backup_silinebilir -e "s/bbn-BKM5-dev/bbn-BKM5/g" ./ios/BBN${ans}/Info.plist
+fi
+
+
+
+# Bosluklu comment var ise (comment'leri kaldir):
+sed -i backup_silinebilir -e "s/\/\/ bkmTheme: themeTuruncu/bkmTheme: themeTuruncu/g" ./js/themes/base-style.js
+sed -i backup_silinebilir -e "s/\/\/ bkmTheme: themeMavi/bkmTheme: themeMavi/g" ./js/themes/base-style.js
+sed -i backup_silinebilir -e "s/\/\/ bkmTheme: themeYesil/bkmTheme: themeYesil/g" ./js/themes/base-style.js
+sed -i backup_silinebilir -e "s/\/\/ bkmTheme: themeSiyah/bkmTheme: themeSiyah/g" ./js/themes/base-style.js
+
+# Bosluksuz comment var ise (comment'leri kaldir):
+sed -i backup_silinebilir -e "s/\/\/bkmTheme: themeTuruncu/bkmTheme: themeTuruncu/g" ./js/themes/base-style.js
+sed -i backup_silinebilir -e "s/\/\/bkmTheme: themeMavi/bkmTheme: themeMavi/g" ./js/themes/base-style.js
+sed -i backup_silinebilir -e "s/\/\/bkmTheme: themeYesil/bkmTheme: themeYesil/g" ./js/themes/base-style.js
+sed -i backup_silinebilir -e "s/\/\/bkmTheme: themeSiyah/bkmTheme: themeSiyah/g" ./js/themes/base-style.js
+
+echo
+
+if [ $2 = "T2" ]
+then
+    echo "Ortam: T2 $1"
+    # bkmTheme: themeTuruncu kalsin, digerlerini comment-out yap:
+    sed -i backup_silinebilir -e "s/bkmTheme: themeMavi/\/\/ bkmTheme: themeMavi/g" ./js/themes/base-style.js
+    sed -i backup_silinebilir -e "s/bkmTheme: themeYesil/\/\/ bkmTheme: themeYesil/g" ./js/themes/base-style.js
+    sed -i backup_silinebilir -e "s/bkmTheme: themeSiyah/\/\/ bkmTheme: themeSiyah/g" ./js/themes/base-style.js
+
+    # Telefondaki uygulamada uzerindeki iconlari ayarla (turuncu, mavi, yesil, siyah)
+    rm -rf ./images/*
+    cp -r ./imagesTuruncu/* ./images/
+
+    # Telefondaki uygulamada desktopta gozukecek iconlari ayarla (turuncu, mavi, yesil, siyah)
+    rm ./ios/BBN${ans}/Images.xcassets/AppIcon.appiconset/*
+    cp ./_configFiles/appIcons/Turuncu/AppIcon.appiconset/* ./ios/BBN${ans}/Images.xcassets/AppIcon.appiconset/
+
+elif [ $2 = "BKM2" ]
+then
+    echo "Ortam: BKM2 $1"
+    # bkmTheme: themeMavi kalsin, digerlerini comment-out yap:    
+    sed -i backup_silinebilir -e "s/bkmTheme: themeTuruncu/\/\/ bkmTheme: themeTuruncu/g" ./js/themes/base-style.js
+    sed -i backup_silinebilir -e "s/bkmTheme: themeYesil/\/\/ bkmTheme: themeYesil/g" ./js/themes/base-style.js
+    sed -i backup_silinebilir -e "s/bkmTheme: themeSiyah/\/\/ bkmTheme: themeSiyah/g" ./js/themes/base-style.js
+
+    # Telefondaki uygulamada uzerindeki iconlari ayarla (turuncu, mavi, yesil, siyah)
+    rm -rf ./images/*
+    cp -r ./imagesMavi/* ./images/
+
+    # Telefondaki uygulamada desktopta gozukecek iconlari ayarla (turuncu, mavi, yesil, siyah)
+    rm ./ios/BBN${ans}/Images.xcassets/AppIcon.appiconset/*
+    cp ./_configFiles/appIcons/Mavi/AppIcon.appiconset/* ./ios/BBN${ans}/Images.xcassets/AppIcon.appiconset/
+
+elif [ $2 = "BKM3" ]
+then
+    echo "Ortam: BKM3 $1"
+    # bkmTheme: themeYesil kalsin, digerlerini comment-out yap:
+    sed -i backup_silinebilir -e "s/bkmTheme: themeTuruncu/\/\/ bkmTheme: themeTuruncu/g" ./js/themes/base-style.js
+    sed -i backup_silinebilir -e "s/bkmTheme: themeMavi/\/\/ bkmTheme: themeMavi/g" ./js/themes/base-style.js
+    sed -i backup_silinebilir -e "s/bkmTheme: themeSiyah/\/\/ bkmTheme: themeSiyah/g" ./js/themes/base-style.js
+
+    # Telefondaki uygulamada uzerindeki iconlari ayarla (turuncu, mavi, yesil, siyah)
+    rm -rf ./images/*
+    cp -r ./imagesYesil/* ./images/
+
+    # Telefondaki uygulamada desktopta gozukecek iconlari ayarla (turuncu, mavi, yesil, siyah)
+    rm ./ios/BBN${ans}/Images.xcassets/AppIcon.appiconset/*
+    cp ./_configFiles/appIcons/Yesil/AppIcon.appiconset/* ./ios/BBN${ans}/Images.xcassets/AppIcon.appiconset/
+
+elif [ $2 = "BKM5" ]
+then
+    echo "Ortam: BKM5 $1"
+    # bkmTheme: themeSiyah kalsin, digerlerini comment-out yap:
+    sed -i backup_silinebilir -e "s/bkmTheme: themeTuruncu/\/\/ bkmTheme: themeTuruncu/g" ./js/themes/base-style.js
+    sed -i backup_silinebilir -e "s/bkmTheme: themeMavi/\/\/ bkmTheme: themeMavi/g" ./js/themes/base-style.js
+    sed -i backup_silinebilir -e "s/bkmTheme: themeYesil/\/\/ bkmTheme: themeYesil/g" ./js/themes/base-style.js
+
+    # Telefondaki uygulamada uzerindeki iconlari ayarla (turuncu, mavi, yesil, siyah)
+    rm -rf ./images/*
+    cp -r ./imagesSiyah/* ./images/
+
+    # Telefondaki uygulamada desktopta gozukecek iconlari ayarla (turuncu, mavi, yesil, siyah)
+    rm ./ios/BBN${ans}/Images.xcassets/AppIcon.appiconset/*
+    cp ./_configFiles/appIcons/Siyah/AppIcon.appiconset/* ./ios/BBN${ans}/Images.xcassets/AppIcon.appiconset/
+
+fi
+
+echo
+
+
+# Info.plist uzerinde uygulamarin birbirlerini gormesi icin konfigurasyonun kalan kismini ayarla:
+sed -i backup_silinebilir -e "s/T2/T3/g" ./ios/BBN${ans}/Info.plist
+sed -i backup_silinebilir -e "s/${2}/T2/g" ./ios/BBN${ans}/Info.plist
+sed -i backup_silinebilir -e "s/T3/${2}/g" ./ios/BBN${ans}/Info.plist
+
+
+# project.pbxproj dosyasindaki bundle_identifier kismini ayarla
+# rm -rf ./ios/BBN${ans}.xcodeproj/project.pbxproj # Zaten ios klasoru silinmisti.
+cp -r ./_configFiles/Masterproject.pbxproj ./ios/BBN${ans}.xcodeproj/project.pbxproj
+sed -i backup_silinebilir -e "s/PRODUCT_BUNDLE_IDENTIFIER \= \"tr.biz.blockchain.t2-dev\"/PRODUCT_BUNDLE_IDENTIFIER \= \"${3}\"/g" ./ios/BBN${ans}.xcodeproj/project.pbxproj
+
+
+# AppDelegate.m sil ve backup'dan tekrar kopyala:
+# rm -rf ./ios/BBN_{2}/AppDelegate.m # Zaten ios klasoru silinmisti.
+cp -r ./_configFiles/MasterAppDelegate.m ./ios/BBN${ans}/AppDelegate.m
+
+
+# ----------- BEGIN: Uygulama Ismi Degisikligi Kalan Kisimlar ----------------------------------------------
+# project.pbxproj dosyasindaki uygulama ismini de degistir. Master'dan kopyaladigimizda BBN_T2dev olarak geliyor.
+sed -i backup_silinebilir -e "s/BBN_T2dev/BBN${ans}/g" ./ios/BBN${ans}.xcodeproj/project.pbxproj
+
+# AppDelegate.m dosyasindaki uygulama ismini de degistir:
+sed -i backup_silinebilir -e "s/\"BBN_T2dev\"/\"BBN${ans}\"/g" ./ios/BBN${ans}/AppDelegate.m
+# ----------- END: Uygulama Ismi Degisikligi Kalan Kisimlar ------------------------------------------------
+
+
+# gd-class2-root.cer sil ve backup'dan tekrar kopyala:
+rm -rf ./ios/gd-class2-root.cer
+cp -r ./_configFiles/gd-class2-root.cer ./ios/gd-class2-root.cer
+
+# Crashlytics.framework ve Fabric.framework klasorlerini sil ve backup'dan tekrar kopyala. Aslinda bunun
+# her uygulama icin ayri ayri yapilimasina gerek yok, sadece ilk paket olustururken yapilsa yeterli. Fakat
+# bizim ilk paket icin ayri bir script dosyamiz olmadigi icin burada her uygulama icin ayri ayri yapiyoruz.
+rm -rf ./ios/Crashlytics.framework
+rm -rf ./ios/Fabric.framework
+cp -r ./_configFiles/Crashlytics.framework ./ios/Crashlytics.framework
+cp -r ./_configFiles/Fabric.framework ./ios/Fabric.framework
+
+
+
+
+
+# Gereksiz olusan backup dosyalarini sil:
+rm -f ./ios/BBN${ans}/Info.plistbackup_silinebilir
+rm -f ./ios/BBN${ans}.xcodeproj/project.pbxprojbackup_silinebilir
+rm -f ./ios/BBN${ans}/AppDelegate.mbackup_silinebilir
+rm -f ./js/themes/base-style.jsbackup_silinebilir
+rm -f ./package.jsonbackup_silinebilir
+rm -f ./index.ios.jsbackup_silinebilir
+rm -f ./index.android.jsbackup_silinebilir
+
+# react-native upgrade komutunu calistirdigimizda, ios ve android folder'lari olusuyor (zaten varsa icinde degisiklik
+# yapabiliyor). Ilker'in android konfigurasyonuna gore su path'da 2 dosyanin (MainActivity.java, MainApplication.java)
+# olmasi gerekiyor: android/app/src/main/java/com/bbn/t2dev/
+# Eger bkmScriptAndroid calistirirsak Ilker'in istedigi path olusuyor.
+# Fakat upgrade komutu bu iki dosyayi su path'e koyuyor: ./android/app/src/main/java/com/bb_t2dev/
+# O nedenle upgrade komutunun olusturdugu path'leri ve dosyalari siliyoruz:
+rm -rf ./android/app/src/main/java/com/bbn${ans}
+
+echo "Lütfen Xcode ile konfigurasyonu kontrol ediniz."
+echo "Hoşçakalın."
+echo

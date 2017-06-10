@@ -1,0 +1,35 @@
+{
+  "project_info": {
+    "project_number": "550709077646",
+    "project_id": "bbnt2dev"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:550709077646:android:5a18d04334165354",
+        "android_client_info": {
+          "package_name": "tr.biz.blockchain.t2dev"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDe3phcB6w29AMH7_hyWMfegKvatwYvOhg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

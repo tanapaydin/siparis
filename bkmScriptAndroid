@@ -1,0 +1,249 @@
+#!/bin/bash
+
+# "chmod +x ./bkmScriptAndroid" komutu ile script dosyasini executable yapmak gerekir.
+# ls -al komutu ile baktigimizda asagidaki x'leri gormemiz lazim.
+# -rwxr-xr-x    1 tan  staff   6569 Jan 11 14:35 bkmScriptAndroid.
+
+# echo "This script is called $0."
+# echo "The number of command line arguments is $#"
+# echo "First argument: $1"
+# echo "Second argument: $2"
+# echo "Third argument: $3"
+
+if [ $# != 2 ]
+then
+    echo "**************************************"
+    echo "Dikkat! Bu script 2 parametre ile calisir!"
+    echo "Kullanim: ./bkmScriptAndroid environment app_name"
+    echo "environment degerleri: dev, test, prod."
+    echo "app_name degerleri   : T2, BKM2, BKM3, BKM5."
+    echo "**************************************"
+    echo "Örnek-1:"
+    echo "./bkmScriptAndroid dev T2"
+    echo "./bkmScriptAndroid dev BKM2"
+    echo "./bkmScriptAndroid dev BKM3"
+    echo "./bkmScriptAndroid dev BKM5"
+    echo "**************************************"
+    echo "Örnek-2:"
+    echo "./bkmScriptAndroid test T2"
+    echo "./bkmScriptAndroid test BKM2"
+    echo "./bkmScriptAndroid test BKM3"
+    echo "./bkmScriptAndroid test BKM5"
+    echo "**************************************"
+    echo "Örnek-3:"
+    echo "./bkmScriptAndroid prod BKM2"
+    exit -1
+elif [ $1 != "dev" ] && [ $1 != "test" ] && [ $1 != "prod" ]
+then
+    echo "Birinci parametre (environment) sadece \"dev, test, prod\" degerlerinden birisi olabilir!"
+    exit -1
+elif [ $2 != "T2" ] && [ $2 != "BKM2" ] && [ $2 != "BKM3" ] && [ $2 != "BKM5" ]
+then
+    echo "İkinci parametre (app_name) sadece \"T2, BKM2, BKM3, BKM5\" degerlerinden birisi olabilir!"
+    exit -1
+fi
+
+lcAppName="" # lower case app name
+if [ $2 = "T2" ]
+then
+	lcAppName="t2"
+elif [ $2 = "BKM2" ]
+then
+	lcAppName="bkm2"
+elif [ $2 = "BKM3" ]
+then
+	lcAppName="bkm3"
+elif [ $2 = "BKM5" ]
+then
+	lcAppName="bkm5"
+fi
+
+
+echo "1) Copy configuration files."
+# copy gradle-wrapper.properties
+rm -rf ./android/gradle/wrapper/gradle-wrapper.properties
+cp -r ./_configFiles/androidMasterFiles/gradle-wrapper.properties ./android/gradle/wrapper/gradle-wrapper.properties
+
+# copy android_build.gradle over android/build.gradle
+rm -rf ./android/build.gradle
+cp -r ./_configFiles/androidMasterFiles/android_build.gradle ./android/build.gradle
+
+# copy app_build.gradle over android/app/build.gradle and update applicationId
+rm -rf ./android/app/build.gradle
+cp -r ./_configFiles/androidMasterFiles/app_build.gradle ./android/app/build.gradle
+sed -i bckp -e "s/com.bbn.bbn_t2dev/com.bbn.$lcAppName$1/g" ./android/app/build.gradle
+rm -rf ./android/app/build.gradlebckp
+
+# create a correct path for MainApplication.java and MainActivity.java.
+rm -rf ./android/app/src/main/java/com/*
+mkdir -p ./android/app/src/main/java/com/bbn/$lcAppName$1/
+cp -r ./_configFiles/androidMasterFiles/MainActivity.java ./android/app/src/main/java/com/bbn/$lcAppName$1/MainActivity.java
+cp -r ./_configFiles/androidMasterFiles/MainApplication.java ./android/app/src/main/java/com/bbn/$lcAppName$1/MainApplication.java
+sed -i bckp -e "s/com.bbn.bbn_t2dev/com.bbn.$lcAppName$1/g" ./android/app/src/main/java/com/bbn/$lcAppName$1/MainActivity.java
+sed -i bckp -e "s/com.bbn.bbn_t2dev/com.bbn.$lcAppName$1/g" ./android/app/src/main/java/com/bbn/$lcAppName$1/MainApplication.java
+rm -rf ./android/app/src/main/java/com/bbn/$lcAppName$1/MainActivity.javabckp
+rm -rf ./android/app/src/main/java/com/bbn/$lcAppName$1/MainApplication.javabckp
+
+# copy AndroidManifest.xml file and update its content.
+rm -rf ./android/app/src/main/AndroidManifest.xml
+cp -r ./_configFiles/androidMasterFiles/AndroidManifest.xml ./android/app/src/main/AndroidManifest.xml
+sed -i bckp -e "s/com.bbn.bbn_t2dev/com.bbn.$lcAppName$1/g" ./android/app/src/main/AndroidManifest.xml
+if [ $1 = "prod" ]
+then
+	sed -i bckp -e "s/bbn-T2-dev/bbn-$2/g" ./android/app/src/main/AndroidManifest.xml
+else
+	sed -i bckp -e "s/bbn-T2-dev/bbn-$2-$1/g" ./android/app/src/main/AndroidManifest.xml
+fi
+rm -rf ./android/app/src/main/AndroidManifest.xmlbckp
+
+# update app name on strings.xml
+rm -rf ./android/app/src/main/res/values/strings.xml
+cp -r ./_configFiles/androidMasterFiles/strings.xml ./android/app/src/main/res/values/strings.xml
+if [ $1 = "prod" ]
+then
+	sed -i bckp -e "s/T2dev/$2/g" ./android/app/src/main/res/values/strings.xml
+else
+	sed -i bckp -e "s/T2dev/$2$1/g" ./android/app/src/main/res/values/strings.xml
+fi
+rm -rf ./android/app/src/main/res/values/strings.xmlbckp
+
+# copy proguard file in order to obfuscate on release mode.
+rm -rf ./android/app/proguard-rules.pro
+cp -r ./_configFiles/androidMasterFiles/proguard-rules.pro ./android/app/proguard-rules.pro
+
+# copy Avenir font to assets.
+cp -r ./images/fonts/Avenir.ttf ./android/app/src/main/assets/fonts/Avenir.ttf
+
+# copy .cer file to assets for pinch module.
+cp -r ./_configFiles/gd-class2-root.cer ./android/app/src/main/assets/gd-class2-root.cer
+
+# copy launcher icons.
+cp -r ./_configFiles/androidMasterFiles/androidLauncherIcon/$lcAppName-mdpi/ic_launcher_app.png ./android/app/src/main/res/mipmap-mdpi/ic_launcher_app.png
+cp -r ./_configFiles/androidMasterFiles/androidLauncherIcon/$lcAppName-hdpi/ic_launcher_app.png ./android/app/src/main/res/mipmap-hdpi/ic_launcher_app.png
+cp -r ./_configFiles/androidMasterFiles/androidLauncherIcon/$lcAppName-xhdpi/ic_launcher_app.png ./android/app/src/main/res/mipmap-xhdpi/ic_launcher_app.png
+cp -r ./_configFiles/androidMasterFiles/androidLauncherIcon/$lcAppName-xxhdpi/ic_launcher_app.png ./android/app/src/main/res/mipmap-xxhdpi/ic_launcher_app.png
+
+# copy fabric properties here.
+#
+
+if [ $1 = "dev" ]
+then
+    # var ortam = '' ===> var ortam = '-dev'
+    sed -i backup_silinebilir -e "s/var ortam \= \'\'/var ortam \= \'-dev\'/g" ./js/themes/base-style.js
+
+    # var ortam = '-test' ===> var ortam = '-dev'
+    sed -i backup_silinebilir -e "s/var ortam \= \'-test\'/var ortam \= \'-dev\'/g" ./js/themes/base-style.js
+
+elif [ $1 = "test" ]
+then
+    # var ortam = '' ===> var ortam = '-test'
+    sed -i backup_silinebilir -e "s/var ortam \= \'\'/var ortam \= \'-test\'/g" ./js/themes/base-style.js
+
+    # var ortam = '-dev' ===> var ortam = '-test'
+    sed -i backup_silinebilir -e "s/var ortam \= \'-dev\'/var ortam \= \'-test\'/g" ./js/themes/base-style.js
+
+elif [ $1 = "prod" ]
+then
+    # var ortam = '-dev' ===> var ortam = ''
+    sed -i backup_silinebilir -e "s/var ortam \= \'-dev\'/var ortam \= \'\'/g" ./js/themes/base-style.js
+
+    # var ortam = '-test' ===> var ortam = ''
+    sed -i backup_silinebilir -e "s/var ortam \= \'-test\'/var ortam \= \'\'/g" ./js/themes/base-style.js
+fi
+
+# Bosluklu comment var ise (comment'leri kaldir):
+sed -i backup_silinebilir -e "s/\/\/ bkmTheme: themeTuruncu/bkmTheme: themeTuruncu/g" ./js/themes/base-style.js
+sed -i backup_silinebilir -e "s/\/\/ bkmTheme: themeMavi/bkmTheme: themeMavi/g" ./js/themes/base-style.js
+sed -i backup_silinebilir -e "s/\/\/ bkmTheme: themeYesil/bkmTheme: themeYesil/g" ./js/themes/base-style.js
+sed -i backup_silinebilir -e "s/\/\/ bkmTheme: themeSiyah/bkmTheme: themeSiyah/g" ./js/themes/base-style.js
+#
+# # Bosluksuz comment var ise (comment'leri kaldir):
+sed -i backup_silinebilir -e "s/\/\/bkmTheme: themeTuruncu/bkmTheme: themeTuruncu/g" ./js/themes/base-style.js
+sed -i backup_silinebilir -e "s/\/\/bkmTheme: themeMavi/bkmTheme: themeMavi/g" ./js/themes/base-style.js
+sed -i backup_silinebilir -e "s/\/\/bkmTheme: themeYesil/bkmTheme: themeYesil/g" ./js/themes/base-style.js
+sed -i backup_silinebilir -e "s/\/\/bkmTheme: themeSiyah/bkmTheme: themeSiyah/g" ./js/themes/base-style.js
+
+if [ $2 = "T2" ]
+then
+    echo "You entered T2"
+    # bkmTheme: themeTuruncu kalsin, digerlerini comment-out yap:
+    sed -i backup_silinebilir -e "s/bkmTheme: themeMavi/\/\/ bkmTheme: themeMavi/g" ./js/themes/base-style.js
+    sed -i backup_silinebilir -e "s/bkmTheme: themeYesil/\/\/ bkmTheme: themeYesil/g" ./js/themes/base-style.js
+    sed -i backup_silinebilir -e "s/bkmTheme: themeSiyah/\/\/ bkmTheme: themeSiyah/g" ./js/themes/base-style.js
+
+    # Telefondaki uygulamada uzerindeki iconlari ayarla (turuncu, mavi, yesil, siyah)
+    rm -rf ./images/*
+    cp -r ./imagesTuruncu/* ./images/
+
+elif [ $2 = "BKM2" ]
+then
+    echo "You entered BKM2"
+    # bkmTheme: themeMavi kalsin, digerlerini comment-out yap:
+    sed -i backup_silinebilir -e "s/bkmTheme: themeTuruncu/\/\/ bkmTheme: themeTuruncu/g" ./js/themes/base-style.js
+    sed -i backup_silinebilir -e "s/bkmTheme: themeYesil/\/\/ bkmTheme: themeYesil/g" ./js/themes/base-style.js
+    sed -i backup_silinebilir -e "s/bkmTheme: themeSiyah/\/\/ bkmTheme: themeSiyah/g" ./js/themes/base-style.js
+
+    # Telefondaki uygulamada uzerindeki iconlari ayarla (turuncu, mavi, yesil, siyah)
+    rm -rf ./images/*
+    cp -r ./imagesMavi/* ./images/
+
+elif [ $2 = "BKM3" ]
+then
+    echo "You entered BKM3"
+    # bkmTheme: themeYesil kalsin, digerlerini comment-out yap:
+    sed -i backup_silinebilir -e "s/bkmTheme: themeTuruncu/\/\/ bkmTheme: themeTuruncu/g" ./js/themes/base-style.js
+    sed -i backup_silinebilir -e "s/bkmTheme: themeMavi/\/\/ bkmTheme: themeMavi/g" ./js/themes/base-style.js
+    sed -i backup_silinebilir -e "s/bkmTheme: themeSiyah/\/\/ bkmTheme: themeSiyah/g" ./js/themes/base-style.js
+
+    # Telefondaki uygulamada uzerindeki iconlari ayarla (turuncu, mavi, yesil, siyah)
+    rm -rf ./images/*
+    cp -r ./imagesYesil/* ./images/
+
+elif [ $2 = "BKM5" ]
+then
+    echo "You entered BKM5"
+    # bkmTheme: themeSiyah kalsin, digerlerini comment-out yap:
+    sed -i backup_silinebilir -e "s/bkmTheme: themeTuruncu/\/\/ bkmTheme: themeTuruncu/g" ./js/themes/base-style.js
+    sed -i backup_silinebilir -e "s/bkmTheme: themeMavi/\/\/ bkmTheme: themeMavi/g" ./js/themes/base-style.js
+    sed -i backup_silinebilir -e "s/bkmTheme: themeYesil/\/\/ bkmTheme: themeYesil/g" ./js/themes/base-style.js
+
+    # Telefondaki uygulamada uzerindeki iconlari ayarla (turuncu, mavi, yesil, siyah)
+    rm -rf ./images/*
+    cp -r ./imagesSiyah/* ./images/
+
+fi
+rm -f ./js/themes/base-style.jsbackup_silinebilir
+
+
+echo "2) Create Debug and Release .apk files."
+# Debug modda kullanilan drawable klasorleri varsa silinir, release modda sorun cikariyorlar.
+rm -rf ./android/app/src/main/res/drawable-*
+(cd android/ && ./gradlew assembleRelease) # bu asama icin .keystore dosyasini app klasorune koydugundan emin ol.
+(cd android/ && ./gradlew assembleDebug)
+
+
+# copy images to the assests folder for 'debug' case => (cd android/ && ./gradlew assembleDebug)
+# Use this if you want to call 'react-native run-android' instead of './gradlew installDebug'.
+# Problems might occure. https://github.com/facebook/react-native/issues/5787
+# burasi debug ederken image dosyalarinin assets'e kaydi icin onemli.
+# Bu islem sonucundaki drawable klasorleri varken release modda .apk cikarken problem oluyor.
+react-native bundle --platform android --entry-file index.android.js --bundle-output android/app/src/main/assets/index.android.bundle --dev false --reset-cache --assets-dest android/app/src/main/res/
+
+
+
+# If you have a device connected, you can install the release version of the app using;
+# (cd android/ && ./gradlew installRelease)
+
+
+echo "3) Lutfen konfigurasyonu su dosyalardan kontrol ediniz:"
+echo "AndroidManifest.xml"
+echo "app/build.gradle"
+echo "android/build.gradle, 2.2.2 olmali"
+echo "android/build.gradle, 2.14.1 olmali"
+echo "MainActivity.java"
+echo "MainApplication.java"
+echo "proguard-rules.pro"
+echo "strings.xml"
+echo ""
+echo ".apk dosyalarina android/app/build/outputs folderindan ulasabilirsiniz."
+echo "BYE"

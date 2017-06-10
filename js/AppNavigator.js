@@ -41,6 +41,7 @@ import SignUpResultMain from "./components/signUpResult/signUpResultMain";
 import SignUpResultActivationApproved from "./components/signUpResult/signUpResultActivationApproved";
 import SignUpResultActivationRejected from "./components/signUpResult/signUpResultActivationRejected";
 import SignUpResultWaiting from "./components/signUpResult/signUpResultWaiting";
+import SiparisMarket from './components/siparisMarket/';
 import SplashPage from './components/splashscreen/';
 import RegisterUndefined from "./components/rememberPin/registerUndefined";
 import TekrarEmailGonder from './components/signIn/tekrarEmailGonder';
@@ -292,6 +293,8 @@ class AppNavigator extends Component {
                 return <SignUpResultActivationApproved navigator={navigator} route={route} {...route.passProps}/>;
             case 'signUpResultActivationRejected':
                 return <SignUpResultActivationRejected navigator={navigator} route={route} {...route.passProps}/>;
+            case 'siparisMarket':
+                return <SiparisMarket navigator={navigator} route={route} {...route.passProps}/>;
             case 'splashscreen':
                 return <SplashPage navigator={navigator}/>;
             case 'purchased':

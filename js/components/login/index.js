@@ -53,19 +53,19 @@ class Login extends Component {
 
                         <Image source={require('../../../images/launch-logo.png')} style={styles.launchLogo}></Image>
 
-                        <Button rounded onPress={() => this.pushNewRoute('account')}
+                        <Button rounded onPress={() => this.pushNewRoute('siparisMarket')}
                                 style={styles.loginBtn}
                                 textStyle={{color: bkmTheme.primaryButtonTextColor, fontSize: 17, fontWeight: '500'}}
                         >
                             Giriş yap
                         </Button>
 
-                        <Button rounded onPress={() => this.pushNewRoute('signUp')}
-                                style={styles.signUpBtn}
-                                textStyle={{color: '#fff', fontSize: 17, fontWeight: '500'}}
-                         >
-                            Kayıt ol
-                        </Button>
+                        {/*<Button rounded onPress={() => this.pushNewRoute('signUp')}*/}
+                                {/*style={styles.signUpBtn}*/}
+                                {/*textStyle={{color: '#fff', fontSize: 17, fontWeight: '500'}}*/}
+                         {/*>*/}
+                            {/*Kayıt ol*/}
+                        {/*</Button>*/}
 
                     </View>
                 </Image>

@@ -236,7 +236,7 @@ var accountAndMarket = {
     itemThumb: {
         borderRadius: 7,
         width: 10 * marginS,
-        height: 10 * marginS,
+        height: 5 * marginS,
     },
     cardItemHeader: {
         color: '#666482',

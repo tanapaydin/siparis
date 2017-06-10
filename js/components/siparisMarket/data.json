@@ -1,0 +1,211 @@
+{
+  "type": "hesapHareketleri",
+  "products": [
+    {
+      "id": "1",
+      "encodedImage": "",
+      "title": "Ekmek",
+      "description": "Tam buğday ekmeği",
+      "price": {
+        "integerPart": "2",
+        "fractionalPart": "50"
+      }
+    },
+    {
+      "id": "2",
+      "encodedImage": "",
+      "title": "Süt",
+      "description": "AOC inek sütü",
+      "price": {
+        "integerPart": "9",
+        "fractionalPart": "0"
+      }
+    },
+    {
+      "id": "3",
+      "encodedImage": "",
+      "title": "Gazete",
+      "description": "Hürriyet",
+      "price": {
+        "integerPart": "15",
+        "fractionalPart": "50"
+      }
+    },
+    {
+      "id": "4",
+      "encodedImage": "",
+      "title": "Gazete",
+      "description": "Milliyet",
+      "price": {
+        "integerPart": "29",
+        "fractionalPart": "99"
+      }
+    }
+  ],
+  "transactionHistory": [
+    {
+      "month": "Agustos",
+      "year": "2016",
+      "monthId": "201608",
+      "transactions": [
+        {
+          "transactionType": "Harcama",
+          "transactionDate": "03.08.2016",
+          "transactionTime": "18:16",
+          "transactionText": "BKMMaaile Hediye Cay Seti",
+          "transactionAmount": "880"
+        },
+        {
+          "transactionType": "Yukleme",
+          "transactionDate": "03.08.2016",
+          "transactionTime": "18:19",
+          "transactionText": "BKMMaaile Yukleme",
+          "transactionAmount": "800"
+        },
+        {
+          "transactionType": "Transfer",
+          "transactionDate": "03.08.2016",
+          "transactionTime": "18:15",
+          "transactionText": "John Foe hesabina",
+          "transactionNote": "123234535",
+          "transactionAmount": "280"
+        },
+        {
+          "transactionType": "Yukleme",
+          "transactionDate": "03.08.2016",
+          "transactionTime": "18:19",
+          "transactionText": "BKMMaaile Yukleme",
+          "transactionAmount": "800"
+        },
+        {
+          "transactionType": "Yukleme",
+          "transactionDate": "03.08.2016",
+          "transactionTime": "18:19",
+          "transactionText": "BKMMaaile Yukleme",
+          "transactionAmount": "800"
+        }
+      ]
+    },
+    {
+      "month": "Eylul",
+      "year": "2016",
+      "monthId": "201609",
+      "transactions": [
+        {
+          "transactionType": "Harcama",
+          "transactionDate": "03.09.2016",
+          "transactionTime": "15:16",
+          "transactionText": "BKMMaaile Hediye Cay Seti",
+          "transactionAmount": "180"
+        },
+        {
+          "transactionType": "Yukleme",
+          "transactionDate": "03.09.2016",
+          "transactionTime": "15:19",
+          "transactionText": "BKMMaaile Yukleme",
+          "transactionAmount": "400"
+        },
+        {
+          "transactionType": "Transfer",
+          "transactionDate": "03.09.2016",
+          "transactionTime": "15:15",
+          "transactionText": "John Doe hesabina",
+          "transactionNote": "123234535",
+          "transactionAmount": "220"
+        }
+      ]
+    },
+    {
+      "isCurrentMonth": "true",
+      "month": "Ekim",
+      "year": "2016",
+      "monthId": "201610",
+      "transactions": [
+        {
+          "transactionType": "Transfer",
+          "transactionDate": "03.10.2016",
+          "transactionTime": "13:15",
+          "transactionText": "John Doe hesabina",
+          "transactionNote": "123234535",
+          "transactionAmount": "220"
+        },
+        {
+          "transactionType": "Harcama",
+          "transactionDate": "03.10.2016",
+          "transactionTime": "13:16",
+          "transactionText": "BKMMaaile Hediye Cay Seti",
+          "transactionAmount": "180"
+        },
+        {
+          "transactionType": "Yukleme",
+          "transactionDate": "03.10.2016",
+          "transactionTime": "13:19",
+          "transactionText": "BKMMaaile Yukleme",
+          "transactionAmount": "400"
+        },
+        {
+          "transactionType": "Transfer",
+          "transactionDate": "03.10.2016",
+          "transactionTime": "13:15",
+          "transactionText": "John Doe hesabina",
+          "transactionNote": "123234535",
+          "transactionAmount": "220"
+        },
+        {
+          "transactionType": "Harcama",
+          "transactionDate": "03.10.2016",
+          "transactionTime": "13:16",
+          "transactionText": "BKMMaaile Hediye Cay Seti",
+          "transactionAmount": "180"
+        },
+        {
+          "transactionType": "Yukleme",
+          "transactionDate": "03.10.2016",
+          "transactionTime": "13:19",
+          "transactionText": "BKMMaaile Yukleme",
+          "transactionAmount": "400"
+        },
+        {
+          "transactionType": "Transfer",
+          "transactionDate": "03.10.2016",
+          "transactionTime": "13:15",
+          "transactionText": "John Doe hesabina",
+          "transactionNote": "123234535",
+          "transactionAmount": "221"
+        },
+        {
+          "transactionType": "Transfer",
+          "transactionDate": "03.10.2016",
+          "transactionTime": "13:15",
+          "transactionText": "John Doe hesabina",
+          "transactionNote": "123234535",
+          "transactionAmount": "220"
+        },
+        {
+          "transactionType": "Harcama",
+          "transactionDate": "03.10.2016",
+          "transactionTime": "13:16",
+          "transactionText": "BKMMaaile Hediye Cay Seti",
+          "transactionAmount": "180"
+        },
+        {
+          "transactionType": "Yukleme",
+          "transactionDate": "03.10.2016",
+          "transactionTime": "13:19",
+          "transactionText": "BKMMaaile Yukleme",
+          "transactionAmount": "400"
+        },
+        {
+          "transactionType": "Transfer",
+          "transactionDate": "03.10.2016",
+          "transactionTime": "13:15",
+          "transactionText": "John Doe hesabina",
+          "transactionNote": "123234535",
+          "transactionAmount": "221"
+        }
+
+      ]
+    }
+
+  ]
+}

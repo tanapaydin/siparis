@@ -38,13 +38,24 @@ class SideBar extends Component {
                         <Image source={require('../../../images/sidebarIcons/top-circles.png')}/>
 
                         <List>
-                            <ListItem accessibilityLabel="sideBar_profilHesapHareketleri" button onPress={() => this.navigateTo('account')} iconLeft style={styles.links} >
+                            <ListItem button onPress={() => this.navigateTo('siparisMarket')} iconLeft style={styles.links} >
+                                <Grid >
+                                    <Col style={styles.listItemIcon}>
+                                        <Thumbnail source={require('../../../images/sidebarIcons/icon-market-siyah.png')} style={styles.profilePic} />
+                                    </Col>
+                                    <Col style={styles.listItemText}>
+                                        <Text style={styles.linkText} >Sipariş Ver</Text>
+                                    </Col>
+                                </Grid>
+                            </ListItem>
+
+                            <ListItem button onPress={() => this.navigateTo('account')} iconLeft style={styles.links} >
                                 <Grid >
                                     <Col style={styles.listItemIcon}>
                                         <Thumbnail source={require('../../../images/sidebarIcons/icon-profile.png')} style={styles.profilePic} />
                                     </Col>
                                     <Col style={styles.listItemText}>
-                                        <Text style={styles.linkText} >Profil & Hesap Hareketleri</Text>
+                                        <Text style={styles.linkText} >Profil & Siparişler</Text>
                                     </Col>
                                 </Grid>
                             </ListItem>
@@ -60,24 +71,35 @@ class SideBar extends Component {
                                 </Grid>
                             </ListItem>
 
-                            <ListItem accessibilityLabel="sideBar_transferYap" button onPress={() => this.navigateTo('sendMoney')} iconLeft style={styles.links} >
+                            <ListItem button onPress={() => this.navigateTo('announcementsfff')} iconLeft style={styles.links} >
                                 <Grid >
                                     <Col style={styles.listItemIcon}>
-                                        <Thumbnail source={require('../../../images/sidebarIcons/icon-transfer.png')} style={styles.profilePic} />
+                                        <Thumbnail source={require('../../../images/sidebarIcons/icon-announcement.png')} style={styles.profilePic} />
                                     </Col>
                                     <Col style={styles.listItemText}>
-                                        <Text style={styles.linkText} >Keklik Transferi</Text>
+                                        <Text style={styles.linkText} >Kullanıcı Tanımla</Text>
                                     </Col>
                                 </Grid>
                             </ListItem>
 
-                            <ListItem accessibilityLabel="sideBar_market" button onPress={() => this.navigateTo('marketMain')} iconLeft style={styles.links} >
+                            <ListItem button onPress={() => this.navigateTo('marketMain')} iconLeft style={styles.links} >
                                 <Grid >
                                     <Col style={styles.listItemIcon}>
                                         <Thumbnail source={require('../../../images/sidebarIcons/icon-market-siyah.png')} style={styles.profilePic} />
                                     </Col>
                                     <Col style={styles.listItemText}>
                                         <Text style={styles.linkText} >Mağaza</Text>
+                                    </Col>
+                                </Grid>
+                            </ListItem>
+
+                            <ListItem button onPress={() => this.navigateTo('sendMoney')} iconLeft style={styles.links} >
+                                <Grid >
+                                    <Col style={styles.listItemIcon}>
+                                        <Thumbnail source={require('../../../images/sidebarIcons/icon-transfer.png')} style={styles.profilePic} />
+                                    </Col>
+                                    <Col style={styles.listItemText}>
+                                        <Text style={styles.linkText} >Keklik Transferi</Text>
                                     </Col>
                                 </Grid>
                             </ListItem>
